@@ -3,9 +3,23 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras.preprocessing import image
 import os
+import gdown
 
-# Load the trained model
-model = tf.keras.models.load_model("pneumonia_detection_model_01.h5")
+# https://drive.google.com/file/d/1mqiK2EYMzfjCnw8mDVGTCyzHVwGjbWqj/view?usp=sharing
+MODEL_PATH = "pneumonia_detection_model_01.h5"
+GDRIVE_FILE_ID = "1mqiK2EYMzfjCnw8mDVGTCyzHVwGjbWqj"  # Change this to your actual file ID
+GDRIVE_URL = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+
+# Check if the model file exists, if not, download it
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model from Google Drive...")
+    gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
+    print("Download complete!")
+
+# Load the model
+print("Loading model...")
+model = tf.keras.models.load_model(MODEL_PATH)
+print("Model loaded successfully!")
 
 # Initialize Flask app
 app = Flask(__name__, static_folder="static")
