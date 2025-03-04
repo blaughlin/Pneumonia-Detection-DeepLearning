@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+}
+
+#upload-box {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    width: 50%;
+    margin: auto;
+}
+
+input[type="file"] {
+    display: block;
+    margin: 10px auto;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#result {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#example-images img {
+    width: 150px;  /* Set fixed width */
+    height: auto;  /* Maintain aspect ratio */
+    margin: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+#example-images img:hover {
+    border: 2px solid #007bff;
+}

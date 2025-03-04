@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneumonia Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Pneumonia Detection</h1>
+
+    <div id="upload-box">
+        <p>Upload a Chest X-ray Image</p>
+        <input type="file" id="fileInput">
+        <button onclick="uploadImage()">Upload & Predict</button>
+    </div>
+
+    <h2>Or Try a Sample Image</h2>
+    <div id="example-images">
+        <img src="{{ url_for('static', filename='examples/normal1.png') }}" onclick="selectExample('examples/normal1.png')" alt="Normal X-ray">
+        <img src="{{ url_for('static', filename='examples/pneumonia1.jpg') }}" onclick="selectExample('examples/pneumonia1.jpg')" alt="Pneumonia X-ray">
+        <img src="{{ url_for('static', filename='examples/normal2.png') }}" onclick="selectExample('examples/normal2.png')" alt="Normal X-ray">
+        <img src="{{ url_for('static', filename='examples/pneumonia2.jpg') }}" onclick="selectExample('examples/pneumonia2.jpg')" alt="Pneumonia X-ray">
+        <img src="{{ url_for('static', filename='examples/pneumonia3.jpg') }}" onclick="selectExample('examples/pneumonia3.jpg')" alt="Pneumonia X-ray">
+
+
+
+    </div>
+
+    <p id="result"></p>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
