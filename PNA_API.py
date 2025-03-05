@@ -4,6 +4,8 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 import os
 import gdown
+import traceback 
+
 
 # https://drive.google.com/file/d/1mqiK2EYMzfjCnw8mDVGTCyzHVwGjbWqj/view?usp=sharing
 MODEL_PATH = "pneumonia_detection_model_01.h5"
@@ -48,22 +50,33 @@ def home():
 # API Route for Prediction (Handles both Uploads and Example Images)
 @app.route("/predict", methods=["POST"])
 def predict():
-    if "file" in request.files:  # User uploads a file
-        file = request.files["file"]
-        filepath = "temp.jpg"
-        file.save(filepath)
-    elif "image_path" in request.form:  # User selects an example
-        filepath = os.path.join("static", request.form["image_path"])
-    else:
-        return jsonify({"error": "No image provided"}), 400
+    try:
+        if "file" in request.files:  # User uploads a file
+            file = request.files["file"]
+            filepath = "temp.jpg"
+            file.save(filepath)
+        elif "image_path" in request.form:  # User selects an example
+            filepath = os.path.join("static", request.form["image_path"])
+        else:
+            return jsonify({"error": "No image provided"}), 400
 
-    label, confidence = predict_pneumonia(filepath)
-    
-    # Remove temporary upload file (not example images)
-    if "file" in request.files:
-        os.remove(filepath)
+        # 🛠️ Add Debugging Log Before Prediction
+        print(f"🔍 Predicting for: {filepath}")
 
-    return jsonify({"Prediction": label, "Confidence": confidence})
+        label, confidence = predict_pneumonia(filepath)
+
+        # Remove temporary upload file (not example images)
+        if "file" in request.files:
+            os.remove(filepath)
+
+        return jsonify({"Prediction": label, "Confidence": confidence})
+
+    except Exception as e:
+        # 🔥 LOG ERROR MESSAGE
+        print("🔥 Error in /predict:", str(e))
+        print(traceback.format_exc())  # Full traceback in logs
+
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 # Serve Example Images
 @app.route("/static/examples/<path:filename>")
