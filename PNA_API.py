@@ -6,6 +6,9 @@ import os
 import gdown
 import traceback 
 import logging
+import psutil
+
+logging.info(f"Memory usage: {psutil.virtual_memory().percent}%")
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -55,29 +58,33 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if "file" in request.files:  # User uploads a file
-        file = request.files["file"]
-        filepath = "temp.jpg"
-        file.save(filepath)
-    elif "image_path" in request.form:  # User selects an example
-        filepath = os.path.join("static", request.form["image_path"])
-    else:
-        return jsonify({"error": "No image provided"}), 400
-
     try:
-        logging.info(f"Processing image: {filepath}")
-        label, confidence = predict_pneumonia(filepath)
-        logging.info(f"Prediction: {label}, Confidence: {confidence}")
+        if "file" in request.files:  # User uploads a file
+            file = request.files["file"]
+            filepath = "temp.jpg"
+            file.save(filepath)
+        elif "image_path" in request.form:  # User selects an example
+            filepath = os.path.join("static", request.form["image_path"])
+        else:
+            logging.error("No image provided.")
+            return jsonify({"error": "No image provided"}), 400
 
-        # Remove temporary upload file
+        logging.info(f"Processing image: {filepath}")
+
+        # Call the prediction function
+        label, confidence = predict_pneumonia(filepath)
+
+        logging.info(f"Prediction successful: {label}, Confidence: {confidence}")
+
+        # Remove temporary file if uploaded
         if "file" in request.files:
             os.remove(filepath)
 
         return jsonify({"Prediction": label, "Confidence": confidence})
 
     except Exception as e:
-        logging.error(f"Prediction error: {e}")
-        logging.error(traceback.format_exc())  # Logs full traceback
+        logging.error(f"Prediction failed: {str(e)}")
+        logging.error(traceback.format_exc())  # Logs full traceback for debugging
         return jsonify({"error": "Prediction failed"}), 500
     
 # Serve Example Images
@@ -86,4 +93,4 @@ def send_example(filename):
     return send_from_directory("static/examples", filename)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5003)))
