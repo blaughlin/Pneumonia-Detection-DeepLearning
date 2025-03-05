@@ -60,9 +60,15 @@ def predict():
         else:
             return jsonify({"error": "No image provided"}), 400
 
-        # 🛠️ Add Debugging Log Before Prediction
+        # 🛠️ Log File Being Processed
         print(f"🔍 Predicting for: {filepath}")
 
+        # ✅ Check if the File Exists
+        if not os.path.exists(filepath):
+            print(f"🚨 Error: File not found -> {filepath}")
+            return jsonify({"error": "File not found"}), 400
+
+        # Run Prediction
         label, confidence = predict_pneumonia(filepath)
 
         # Remove temporary upload file (not example images)
