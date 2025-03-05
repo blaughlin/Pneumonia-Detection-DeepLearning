@@ -3,3 +3,4 @@ tensorflow==2.16.2
 numpy==1.23.5
 gdown
 gunicorn
+Pillow
