@@ -55,35 +55,31 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    if "file" in request.files:  # User uploads a file
+        file = request.files["file"]
+        filepath = "temp.jpg"
+        file.save(filepath)
+    elif "image_path" in request.form:  # User selects an example
+        filepath = os.path.join("static", request.form["image_path"])
+    else:
+        return jsonify({"error": "No image provided"}), 400
+
     try:
-        logging.info("Received request for prediction.")
-
-        if "file" in request.files:  # User uploads a file
-            file = request.files["file"]
-            filepath = "temp.jpg"
-            file.save(filepath)
-            logging.info(f"Saved uploaded file to {filepath}.")
-        elif "image_path" in request.form:  # User selects an example
-            filepath = os.path.join("static", request.form["image_path"])
-            logging.info(f"Using example image: {filepath}.")
-        else:
-            logging.error("No image provided in request.")
-            return jsonify({"error": "No image provided"}), 400
-
+        logging.info(f"Processing image: {filepath}")
         label, confidence = predict_pneumonia(filepath)
+        logging.info(f"Prediction: {label}, Confidence: {confidence}")
 
-        # Remove temporary upload file (not example images)
+        # Remove temporary upload file
         if "file" in request.files:
             os.remove(filepath)
-            logging.info(f"Deleted temp file {filepath}.")
 
-        logging.info(f"Prediction successful: {label} with confidence {confidence}")
         return jsonify({"Prediction": label, "Confidence": confidence})
 
     except Exception as e:
-        logging.error(f"Prediction failed: {e}")
-        return jsonify({"error": f"Prediction failed: {e}"}), 500
-
+        logging.error(f"Prediction error: {e}")
+        logging.error(traceback.format_exc())  # Logs full traceback
+        return jsonify({"error": "Prediction failed"}), 500
+    
 # Serve Example Images
 @app.route("/static/examples/<path:filename>")
 def send_example(filename):
