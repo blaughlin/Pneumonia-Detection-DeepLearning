@@ -5,6 +5,10 @@ from tensorflow.keras.preprocessing import image
 import os
 import gdown
 import traceback 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 # https://drive.google.com/file/d/1mqiK2EYMzfjCnw8mDVGTCyzHVwGjbWqj/view?usp=sharing
@@ -48,39 +52,37 @@ def home():
     return render_template("index.html")
 
 # API Route for Prediction (Handles both Uploads and Example Images)
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
+        logging.info("Received request for prediction.")
+
         if "file" in request.files:  # User uploads a file
             file = request.files["file"]
             filepath = "temp.jpg"
             file.save(filepath)
+            logging.info(f"Saved uploaded file to {filepath}.")
         elif "image_path" in request.form:  # User selects an example
             filepath = os.path.join("static", request.form["image_path"])
+            logging.info(f"Using example image: {filepath}.")
         else:
+            logging.error("No image provided in request.")
             return jsonify({"error": "No image provided"}), 400
 
-        # TRY MAKING A PREDICTION
-        try:
-            label, confidence = predict_pneumonia(filepath)
-        except Exception as e:
-            return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
+        label, confidence = predict_pneumonia(filepath)
 
-        # Remove temporary upload file
+        # Remove temporary upload file (not example images)
         if "file" in request.files:
             os.remove(filepath)
+            logging.info(f"Deleted temp file {filepath}.")
 
+        logging.info(f"Prediction successful: {label} with confidence {confidence}")
         return jsonify({"Prediction": label, "Confidence": confidence})
 
     except Exception as e:
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
-
-    except Exception as e:
-        # 🔥 LOG ERROR MESSAGE
-        print("🔥 Error in /predict:", str(e))
-        print(traceback.format_exc())  # Full traceback in logs
-
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+        logging.error(f"Prediction failed: {e}")
+        return jsonify({"error": f"Prediction failed: {e}"}), 500
 
 # Serve Example Images
 @app.route("/static/examples/<path:filename>")
