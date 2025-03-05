@@ -10,6 +10,11 @@ MODEL_PATH = "pneumonia_detection_model_01.h5"
 GDRIVE_FILE_ID = "1mqiK2EYMzfjCnw8mDVGTCyzHVwGjbWqj"  # Change this to your actual file ID
 GDRIVE_URL = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
 
+# Limit TensorFlow to use a fixed amount of memory
+physical_devices = tf.config.experimental.list_physical_devices('CPU')
+for device in physical_devices:
+    tf.config.experimental.set_memory_growth(device, True)
+    
 # Check if the model file exists, if not, download it
 if not os.path.exists(MODEL_PATH):
     print("Downloading model from Google Drive...")
